@@ -10,8 +10,9 @@ if (!isset($entityManager)) {
 
 $userService = new UserService($entityManager);
 
-$list = $userService->list();
-
-foreach ($list as $user) {
-	echo $user->getName() . "\n";
+$list = $userService->list(1, 10);
+echo "List of users: " . PHP_EOL;
+$array = json_decode($list, true);
+foreach ($array as $user) {
+	echo $user['id'] . " - " . $user['person'] . PHP_EOL;
 }

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="role")
  */
-class Role {
+class Role implements JsonSerializable {
 	/**
 	 * @ORM\Id
 	 * @ORM\Column(type="integer")
@@ -39,6 +39,13 @@ class Role {
 	public function setName($name)
 	{
 		$this->name = $name;
+	}
+
+	public function jsonSerialize()
+	{
+		return [
+			'name' => $this->name
+		];
 	}
 
 	public function __toString()

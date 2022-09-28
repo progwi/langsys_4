@@ -1,4 +1,5 @@
 <?php
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 require_once __DIR__ . '/../models/Role.php';
 require_once __DIR__ . '/../models/Person.php';
@@ -69,10 +70,26 @@ class UserService
 		$this->entityManager->flush();
 	}
 
-	public function list()
-	{
-		$users = $this->entityManager->getRepository('User')->findAll();
-		return $users;
+	public function list($pageNumber = 1, $pageSize = 5)
+	{	
+		$offset = ($pageNumber - 1) * $pageSize;
+		$dqlQuery = "SELECT u FROM User u ORDER BY u.name ASC";
+		$query = $this->entityManager->createQuery($dqlQuery)->setFirstResult($offset)->setMaxResults($pageSize);
+		$paginator = new Paginator($query, $fetchJoinCollection = false);
+		$users = [];
+		$count = count($paginator);
+		$numberOfPages = ceil($count / $pageSize);
+		echo "Total users: " . $count . PHP_EOL;
+		echo "Number of pages: " . $numberOfPages . PHP_EOL;
+		foreach ($paginator as $user) {
+			$users[] = [
+				'id' => $user->getId(),
+				'name' => $user->getName(),
+				'email' => $user->getEmail(),
+				'person' => $user->getPerson()->getFirstName() . ' ' . $user->getPerson()->getLastName()
+			];
+		}
+		return json_encode($users);
 	}
 
 	public function find($id)
